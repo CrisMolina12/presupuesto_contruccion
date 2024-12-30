@@ -6,6 +6,29 @@ import 'jspdf-autotable'
 import Image from 'next/image'
 import './style.css'
 
+// Add type declaration for jspdf-autotable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: AutoTableOptions) => void;
+  }
+}
+
+interface AutoTableOptions {
+  head: (string | number)[][];
+  body: (string | number)[][];
+  startY: number;
+  theme: string;
+  headStyles: { fillColor: number[]; textColor: number };
+  alternateRowStyles: { fillColor: number[] };
+  margin: { top: number; right: number; bottom: number; left: number };
+  columnStyles: Array<{
+    cellWidth?: string | number;
+    halign?: 'left' | 'center' | 'right';
+  }>;
+  styles: { overflow: string; cellPadding: number };
+  didDrawPage: () => void;
+}
+
 type Producto = {
   id: string
   nombre: string
@@ -110,7 +133,7 @@ export default function Home() {
     ]);
 
     // Agregar tabla de productos
-    (doc as any).autoTable({
+    doc.autoTable({
       head: [tableColumn],
       body: tableRows,
       startY: 50,
@@ -118,14 +141,14 @@ export default function Home() {
       headStyles: { fillColor: [52, 152, 219], textColor: 255 },
       alternateRowStyles: { fillColor: [241, 245, 249] },
       margin: { top: 50, right: margin, bottom: 60, left: margin },
-      columnStyles: {
-        0: { cellWidth: 'auto' },
-        1: { cellWidth: 30, halign: 'center' },
-        2: { cellWidth: 40, halign: 'right' },
-        3: { cellWidth: 40, halign: 'right' }
-      },
+      columnStyles: [
+        { cellWidth: 'auto' },
+        { cellWidth: 30, halign: 'center' },
+        { cellWidth: 40, halign: 'right' },
+        { cellWidth: 40, halign: 'right' }
+      ],
       styles: { overflow: 'linebreak', cellPadding: 5 },
-      didDrawPage: (data: any) => {
+      didDrawPage: () => {
         addHeader();
         addFooter();
       }
@@ -148,7 +171,7 @@ export default function Home() {
           Busca productos para tu proyecto
         </h2>
         <p className="step-description">
-          Ingresa el nombre del producto que necesitas y haz clic en "Buscar" para encontrar las mejores opciones.
+          Ingresa el nombre del producto que necesitas y haz clic en &quot;Buscar&quot; para encontrar las mejores opciones.
         </p>
         <form onSubmit={buscarProductos} className="search-form">
           <input

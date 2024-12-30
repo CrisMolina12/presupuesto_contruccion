@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server'
 import axios from 'axios'
 
+interface MercadoLibreItem {
+  id: string
+  title: string
+  price: number
+  thumbnail: string
+  permalink: string
+}
+
 async function buscarEnMercadoLibre(query: string) {
   try {
     console.log('Buscando en MercadoLibre:', query)
     const response = await axios.get(`https://api.mercadolibre.com/sites/MLC/search?q=${encodeURIComponent(query)}`)
     console.log('Respuesta de MercadoLibre recibida')
     
-    const productos = response.data.results.map((item: any) => ({
+    const productos = response.data.results.map((item: MercadoLibreItem) => ({
       id: item.id,
       nombre: item.title,
       precio: item.price,
